@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -156,6 +156,11 @@ namespace CG
             return angle;
         }
 
+        public static double NormDistance(this double value, double worldDiameter)
+        {
+            return value / worldDiameter;
+        }
+
         public static int ToInt(this string s)
         {
             return int.Parse(s);
@@ -179,6 +184,11 @@ namespace CG
             var a = unchecked ((ulong) r.Next());
             var b = unchecked ((ulong) r.Next());
             return (a << 32) | b;
+        }
+        
+        public static double NextDouble(this Random r, double min, double max)
+        {
+            return r.NextDouble() * (max - min) + min;
         }
 
         public static ulong[,,] CreateRandomTable(this Random r, int size1, int size2, int size3)

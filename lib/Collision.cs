@@ -1,4 +1,4 @@
-﻿namespace CG
+namespace CG
 {
     public class Collision
     {

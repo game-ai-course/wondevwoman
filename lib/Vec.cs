@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace CG
@@ -16,7 +17,7 @@ namespace CG
         }
 
         public Vec(double x, double y)
-            : this((int) Math.Round(x), (int) Math.Round(y))
+            : this(checked((int) Math.Round(x)), checked((int) Math.Round(y)))
         {
         }
 

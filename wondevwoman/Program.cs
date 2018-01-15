@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,14 +21,9 @@ namespace CG.WondevWoman
         {
             var reader = new StateReader(Console.ReadLine);
             var initData = reader.ReadInitialization();
-            var estimator = new Estimator();
-#if DEV
-            var fogRevealer = new SmartFogRevealer(estimator);
-            var ai = new AlphabetaAi(estimator);
-#else
+            var evaluator = new StateEvaluator();
             var fogRevealer = new SimpleFogRevealer();
-            var ai = new GreedyAi(estimator);
-#endif
+            var ai = new GreedyAi(evaluator);
             while (true)
             {
                 var state = reader.ReadState(initData);
@@ -39,7 +34,7 @@ namespace CG.WondevWoman
                 EnsureActionsAreSame(state.GetPossibleActions(), actions);
                 var action = ai.GetAction(state, countdown);
                 WriteOutput(action);
-                Console.Error.WriteLine(countdown.ElapsedMs + " ms");
+                Console.Error.WriteLine(countdown);
                 fogRevealer.RegisterAction(action);
                 action.ApplyTo(state);
             }

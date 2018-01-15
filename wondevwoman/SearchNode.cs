@@ -1,4 +1,4 @@
-﻿namespace CG.WondevWoman
+namespace CG.WondevWoman
 {
     public class SearchNode
     {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,9 +11,6 @@ namespace CG.WondevWoman
         private readonly int[][] heights;
         private readonly int[] scores;
         private readonly Vec[][] units;
-#if DEV
-        private readonly ZobristHasher hasher;
-#endif
 
         public State(int[][] heights, Vec[][] units, bool[] dead, int[] scores)
         {
@@ -21,9 +18,6 @@ namespace CG.WondevWoman
             this.units = units;
             this.dead = dead;
             this.scores = scores;
-#if DEV
-            hasher = new ZobristHasher(this);
-#endif
         }
 
         public int CurrentPlayer { get; private set; }
@@ -194,19 +188,11 @@ namespace CG.WondevWoman
 
         public void MoveUnit(int player, int index, Vec newPos)
         {
-#if DEV
-            hasher.SwitchUnit(units[player][index], player);
-            hasher.SwitchUnit(newPos, player);
-#endif
             units[player][index] = newPos;
         }
 
         public void SetHeight(Vec pos, int newHeight)
         {
-#if DEV
-            hasher.SwitchHeight(pos.X, pos.Y, HeightAt(pos));
-            hasher.SwitchHeight(pos.X, pos.Y, newHeight);
-#endif
             heights[pos.Y][pos.X] = newHeight;
         }
 
@@ -222,11 +208,7 @@ namespace CG.WondevWoman
 
         public ulong HashValue()
         {
-#if DEV
-            return hasher.HashValue;
-#else
             throw new NotImplementedException();
-#endif
         }
     }
 }

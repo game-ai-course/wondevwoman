@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace CG
 {
@@ -17,6 +17,11 @@ namespace CG
 
         public long TimeLeftMs => timeAvailableMs - stopwatch.ElapsedMilliseconds;
         public long ElapsedMs => stopwatch.ElapsedMilliseconds;
+
+        public override string ToString()
+        {
+            return $"Elapsed {ElapsedMs} ms. Available {timeAvailableMs} ms";
+        }
 
         public static implicit operator Countdown(int milliseconds)
         {

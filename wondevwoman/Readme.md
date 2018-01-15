@@ -1,4 +1,4 @@
-﻿# Оценочная функция и minimax
+# Оценочная функция и minimax
 
 Это репозиторий с заготовкой бота для игры 
 [WondevWoman](https://www.codingame.com/multiplayer/bot-programming/wondev-woman).

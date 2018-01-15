@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 namespace CG
@@ -31,6 +31,11 @@ namespace CG
         public int ReadInt()
         {
             return int.Parse(readLine());
+        }
+
+        public int[] ReadInts()
+        {
+            return readLine().Split().Select(int.Parse).ToArray();
         }
 
         public Vec ReadVec()

@@ -1,14 +1,14 @@
-﻿using System.Linq;
+using System.Linq;
 
 namespace CG.WondevWoman
 {
     public class GreedyAi
     {
-        private readonly IEstimator estimator;
+        private readonly IStateEvaluator evaluator;
 
-        public GreedyAi(IEstimator estimator)
+        public GreedyAi(IStateEvaluator evaluator)
         {
-            this.estimator = estimator;
+            this.evaluator = evaluator;
         }
 
         public IGameAction GetAction(State state, Countdown countdown)
@@ -17,17 +17,17 @@ namespace CG.WondevWoman
             foreach (var action in actions)
             {
                 if (countdown.IsFinished) break;
-                action.Score = Estimate(state, action);
+                action.Score = Evaluate(state, action);
                 
             }
             return actions.MaxBy(a => a.Score);
         }
 
-        private ExplainedScore Estimate(State state, IGameAction action)
+        private ExplainedScore Evaluate(State state, IGameAction action)
         {
             using (action.ApplyTo(state))
             {
-                return estimator.Estimate(state, 0);
+                return evaluator.Evaluate(state, 0);
             }
         }
     }

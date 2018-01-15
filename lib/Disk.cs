@@ -37,7 +37,9 @@ namespace CG
             var sigma = Radius + other.Radius;
             var d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
             if (d < 0) return double.PositiveInfinity;
-            return -(dvdr + Math.Sqrt(d)) / dvdv;
+            var collisionTime = -(dvdr + Math.Sqrt(d)) / dvdv;
+            if (collisionTime < 0) return double.PositiveInfinity;
+            return collisionTime;
         }
 
         public void BounceOff(Disk other)
@@ -52,7 +54,7 @@ namespace CG
         {
             var impulse = ComputeImpulse(Pos, V, Mass, other.Pos, other.V, other.Mass);
             var impulseSize = Math.Max(impulse.Length(), impulse.Length() * 0.5 + minImpulse);
-            var adjusted = impulse.Resize(impulseSize);
+            var adjusted = (Pos - other.Pos).Resize(impulseSize);
             var vs = BouncedSpeed(V, Mass, other.V, other.Mass, adjusted);
             V = vs.Item1;
             other.V = vs.Item2;

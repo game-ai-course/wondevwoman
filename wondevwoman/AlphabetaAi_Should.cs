@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -8,7 +8,7 @@ namespace CG.WondevWoman
     [TestFixture]
     public class AlphabetaAi_Should
     {
-        private readonly IEstimator estimator = new Estimator();
+        private readonly IStateEvaluator evaluator = new StateEvaluator();
 
         [TestCase("0.11.3|43..33|132013|3.41.3|0.30.3|000331|0 2|3 0|-1 -1|-1 -1|")]
         [TestCase("...0...|..000..|.00000.|0000000|.00010.|..000..|...1...|3 5|5 4|3 4|-1 -1|")]
@@ -17,8 +17,8 @@ namespace CG.WondevWoman
             var state = StateReader.Read(input);
             var initialStateDump = state.ToString();
             
-            var greedyAction = new GreedyAi(estimator).GetAction(state, 100);
-            var abAction = new AlphabetaAi(estimator, 1).GetAction(state, 100);
+            var greedyAction = new GreedyAi(evaluator).GetAction(state, 100);
+            var abAction = new AlphabetaAi(evaluator, 1).GetAction(state, 100);
 
             Console.WriteLine(state.ToString());
             Console.WriteLine(abAction);
@@ -33,7 +33,7 @@ namespace CG.WondevWoman
         public void RunCase(string input)
         {
             var state = StateReader.Read(input);
-            var ai = new AlphabetaAi(estimator);
+            var ai = new AlphabetaAi(evaluator);
             var action = ai.GetAction(state, 45);
             Console.WriteLine(action);
         }
@@ -64,7 +64,7 @@ namespace CG.WondevWoman
                 .ReadState(new InitializationData(7, 2));
             for (var j = 0; j < 10; j++)
             {
-                var alphabetaAi = new AlphabetaAi(estimator);
+                var alphabetaAi = new AlphabetaAi(evaluator);
                 for (var i = 0; i < 10; i++)
                 {
                     var action = alphabetaAi.GetAction(state, 100);
@@ -85,7 +85,7 @@ namespace CG.WondevWoman
             {
                 var localSize = new StatValue();
                 var state = StateReader.Read(stateInput);
-                var ai = new AlphabetaAi(estimator, 3) { Logging = false };
+                var ai = new AlphabetaAi(evaluator, 3) { Logging = false };
                 for (var i = 0; i < 1; i++)
                 {
                     var action = ai.GetAction(state, 250);
