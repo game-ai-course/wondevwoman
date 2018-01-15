@@ -16,7 +16,7 @@ namespace CG.WondevWoman
 
         public int LastSearchTreeSize { get; private set; }
 
-        public ScoredList<TNode> Search(TNode node, int depth, ScoredList<TNode> bestScoreds = null)
+        public ScoredList<TNode> Search(TNode node, int depth, ScoredList<TNode> priorityBranch = null)
         {
             throw new NotImplementedException();
         }

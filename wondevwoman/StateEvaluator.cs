@@ -9,7 +9,7 @@ namespace CG.WondevWoman
     {
         public ExplainedScore Evaluate(State state, int playerIndex)
         {
-            throw new NotImplementedException();
+            return 42;
         }
 
     }

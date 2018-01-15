@@ -85,9 +85,8 @@ namespace CG.WondevWoman
             if (dead[CurrentPlayer])
                 return new List<IGameAction> { new AcceptDefeatAction() };
             var actions =
-                GetPossiblePushActions().Concat(GetPossibleMoveActions())
-                    .ToList(); //319,883333333333 disp=343,625430358245 range=11..1901 confInt=44,3618523036946 count=240
-            //var actions = GetPossibleMoveActions().Concat(GetPossiblePushActions()).ToList(); // 346,970833333333 disp=388,808686866226 range=11..2425 confInt=50,1949856364556 count=240
+                GetPossibleMoveActions().Concat(GetPossiblePushActions())
+                    .ToList();
             if (actions.Count == 0)
                 actions.Add(new AcceptDefeatAction());
             return actions;
@@ -119,7 +118,6 @@ namespace CG.WondevWoman
             for (var index = 0; index < MyUnits.Count; index++)
             {
                 var unit = MyUnits[index];
-                var myOtherUnit = MyUnits[1 - index];
                 if (unit.X < 0) continue;
                 foreach (var moveDir in Directions.All8)
                 {
@@ -130,8 +128,7 @@ namespace CG.WondevWoman
                             var build = dest + buildDir;
                             if (build.InArea(Size)
                                 && HeightAt(build) < 4
-                                && !myOtherUnit.Equals(build) && !HisUnits[0].Equals(build) &&
-                                !HisUnits[1].Equals(build))
+                                && !AllUnits.Any(u => u != unit && u.Equals(build)))
                             {
                                 var action = new MoveAndBuildAction(index, moveDir, buildDir);
                                 EnsureMoveValid(action);
@@ -206,9 +203,5 @@ namespace CG.WondevWoman
             scores[player] = newScore;
         }
 
-        public ulong HashValue()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

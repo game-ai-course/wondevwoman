@@ -20,7 +20,7 @@ namespace CG.WondevWoman
                 action.Score = Evaluate(state, action);
                 
             }
-            return actions.MaxBy(a => a.Score);
+            return actions.MaxBy(a => a.Score ?? double.NegativeInfinity);
         }
 
         private ExplainedScore Evaluate(State state, IGameAction action)
