@@ -21,9 +21,6 @@ namespace CG.WondevWoman
         }
 
         public int CurrentPlayer { get; private set; }
-        public int StepsCompleted { get; private set; }
-
-        public bool Finished => StepsCompleted > 400;
         public IReadOnlyList<Vec> MyUnits => units[CurrentPlayer];
         public IReadOnlyList<Vec> HisUnits => units[1 - CurrentPlayer];
         public int Size => heights.Length;
@@ -74,7 +71,6 @@ namespace CG.WondevWoman
                 scores.ToArray()
             )
             {
-                StepsCompleted = StepsCompleted,
                 CurrentPlayer = CurrentPlayer
             };
         }
@@ -180,7 +176,6 @@ namespace CG.WondevWoman
         public void ChangeCurrentPlayer()
         {
             CurrentPlayer = 1 - CurrentPlayer;
-            StepsCompleted++;
         }
 
         public void MoveUnit(int player, int index, Vec newPos)

@@ -11,7 +11,6 @@ using System.Linq;
 
 // #define CORRECTNESS_CHECKS
  
-    
 
 namespace CG.WondevWoman
 {
@@ -19,11 +18,11 @@ namespace CG.WondevWoman
     {
         private static void Main()
         {
-            var reader = new StateReader(Console.ReadLine);
-            var initData = reader.ReadInitialization();
             var evaluator = new StateEvaluator();
             var fogRevealer = new SimpleFogRevealer();
             var ai = new GreedyAi(evaluator);
+            var reader = new StateReader(Console.ReadLine);
+            var initData = reader.ReadInitialization();
             while (true)
             {
                 var state = reader.ReadState(initData);

@@ -11,14 +11,14 @@ namespace CG.WondevWoman
         private Vec enemyOldPos;
         private int oldHeight;
 
-        public PushAndBuildAction(int index, Direction targetDirection, Direction pushDirection)
+        public PushAndBuildAction(int unitIndex, Direction targetDirection, Direction pushDirection)
         {
-            Index = index;
+            UnitIndex = unitIndex;
             TargetDirection = targetDirection;
             PushDirection = pushDirection;
         }
 
-        public int Index { get; }
+        public int UnitIndex { get; }
 
         public Vec BuildPos { get; private set; }
 
@@ -26,7 +26,7 @@ namespace CG.WondevWoman
         {
             try
             {
-                var me = state.MyUnits[Index];
+                var me = state.MyUnits[UnitIndex];
                 enemyOldPos = me + TargetDirection;
                 var enemyDest = enemyOldPos + PushDirection;
                 BuildPos = enemyOldPos;
@@ -61,7 +61,7 @@ namespace CG.WondevWoman
 
         public override string ToString()
         {
-            return $"PUSH&BUILD {Index} {TargetDirection} {PushDirection}";
+            return $"PUSH&BUILD {UnitIndex} {TargetDirection} {PushDirection}";
         }
     }
 }

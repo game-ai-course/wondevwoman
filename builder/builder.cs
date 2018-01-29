@@ -45,9 +45,11 @@ internal class Builder
             {
                 if (!usingLine.StartsWith("using System"))
                 {
+                    var oldColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(usingLine + " in " + file.name);
                     Console.WriteLine("You can't use third party libs in your solution! Press any key and fix it!");
+                    Console.ForegroundColor = oldColor;
                     Console.ReadLine();
                     Environment.Exit(255);
                 }

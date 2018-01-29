@@ -12,14 +12,14 @@ namespace CG.WondevWoman
         private Vec oldPos;
         private int oldScore;
 
-        public MoveAndBuildAction(int index, Direction moveDirection, Direction buildDirection)
+        public MoveAndBuildAction(int unitIndex, Direction moveDirection, Direction buildDirection)
         {
-            Index = index;
+            UnitIndex = unitIndex;
             MoveDirection = moveDirection;
             BuildDirection = buildDirection;
         }
 
-        public int Index { get; }
+        public int UnitIndex { get; }
 
         public Vec BuildPos { get; private set; }
 
@@ -27,13 +27,13 @@ namespace CG.WondevWoman
         {
             try
             {
-                oldPos = state.MyUnits[Index];
+                oldPos = state.MyUnits[UnitIndex];
                 var newPos = oldPos + MoveDirection;
                 buildPosition = newPos + BuildDirection;
                 BuildPos = buildPosition;
                 oldHeight = state.HeightAt(buildPosition);
                 oldScore = state.GetScore(state.CurrentPlayer);
-                state.MoveUnit(state.CurrentPlayer, Index, newPos);
+                state.MoveUnit(state.CurrentPlayer, UnitIndex, newPos);
                 if (state.HeightAt(newPos) == 3)
                     state.SetScore(state.CurrentPlayer, oldScore + 1);
                 if (!state.HisUnits.Any(u => u.Equals(buildPosition)))
@@ -56,12 +56,12 @@ namespace CG.WondevWoman
             state.ChangeCurrentPlayer();
             state.SetHeight(buildPosition, oldHeight);
             state.SetScore(state.CurrentPlayer, oldScore);
-            state.MoveUnit(state.CurrentPlayer, Index, oldPos);
+            state.MoveUnit(state.CurrentPlayer, UnitIndex, oldPos);
         }
 
         public override string ToString()
         {
-            return $"MOVE&BUILD {Index} {MoveDirection} {BuildDirection}";
+            return $"MOVE&BUILD {UnitIndex} {MoveDirection} {BuildDirection}";
         }
     }
 }
