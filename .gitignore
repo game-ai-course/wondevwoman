@@ -4,3 +4,4 @@ obj/
 /logs
 .vs/
 .preparer_output/
+*.user

@@ -97,7 +97,7 @@ namespace CG.WondevWoman
                 foreach (var targetDir in Directions.All8)
                 {
                     var target = unit + targetDir;
-                    if (HisUnits.Any(u => u.Equals(target)))
+                    if (HisUnits.Any(u => u.X >= 0 && u.Equals(target)))
                         foreach (var pushDir in targetDir.PushDirections())
                             if (CanMove(target, target + pushDir))
                             {
