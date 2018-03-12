@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace CG
 {
@@ -41,7 +42,11 @@ namespace CG
 
         public string ToDetailedString()
         {
-            return $"{Mean} disp={StdDeviation} range={Min}..{Max} confInt={ConfIntervalSize} count={Count}";
+            return $"{Mean.ToString(CultureInfo.InvariantCulture)} " +
+                   $"disp={StdDeviation.ToString(CultureInfo.InvariantCulture)} " +
+                   $"range={Min.ToString(CultureInfo.InvariantCulture)}..{Max.ToString(CultureInfo.InvariantCulture)} " +
+                   $"confInt={ConfIntervalSize.ToString(CultureInfo.InvariantCulture)} " +
+                   $"count={Count}";
         }
 
 

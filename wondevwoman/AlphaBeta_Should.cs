@@ -91,11 +91,9 @@ namespace CG.WondevWoman
         public void BigTest()
         {
             var root = GetTreeFromWikipediaSample();
-            var moves = alphaBeta.Search(root, 4);
-            moves.Score
-                .Should().Be(6.0);
+            var move = alphaBeta.Search(root, 4);
+            move.Score.Should().Be(6.0);
             evaluations.Should().HaveCount(9);
-            moves.Select(n => n.Score).Should().Equal(-6.0, -6, -6, -6, 6);
         }
 
         [Test]

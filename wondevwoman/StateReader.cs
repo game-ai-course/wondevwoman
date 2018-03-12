@@ -55,9 +55,13 @@ namespace CG.WondevWoman
         {
             try
             {
-                var cells = Enumerable.Range(0, data.Size)
-                    .Select(i => readLine().Select(c => c == '.' ? 4 : c - '0').ToArray())
-                    .ToArray();
+                var cells = new int[data.Size, data.Size];
+                for (int y = 0; y < data.Size; y++)
+                {
+                    var line = readLine();
+                    for (int x = 0; x < data.Size; x++)
+                        cells[y, x] = line[x] == '.' ? 4 : line[x] - '0';
+                }
                 var myUnits = Enumerable.Range(0, data.UnitsPerPlayer).Select(i => Vec.Parse(readLine())).ToArray();
                 var hisUnits = Enumerable.Range(0, data.UnitsPerPlayer).Select(i => Vec.Parse(readLine())).ToArray();
                 // ReSharper disable once UnusedVariable
@@ -76,14 +80,14 @@ namespace CG.WondevWoman
             if (ps[0] == "MOVE&BUILD")
                 return new MoveAndBuildAction(
                     int.Parse(ps[1]),
-                    (Direction) Enum.Parse(typeof(Direction), ps[2]),
-                    (Direction) Enum.Parse(typeof(Direction), ps[3])
+                    (Direction)Enum.Parse(typeof(Direction), ps[2]),
+                    (Direction)Enum.Parse(typeof(Direction), ps[3])
                 );
             else if (ps[0] == "PUSH&BUILD")
                 return new PushAndBuildAction(
                     int.Parse(ps[1]),
-                    (Direction) Enum.Parse(typeof(Direction), ps[2]),
-                    (Direction) Enum.Parse(typeof(Direction), ps[3])
+                    (Direction)Enum.Parse(typeof(Direction), ps[2]),
+                    (Direction)Enum.Parse(typeof(Direction), ps[3])
                 );
             else throw new Exception("unknown action " + ps[0]);
         }

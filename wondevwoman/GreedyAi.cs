@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CG.WondevWoman
@@ -14,13 +15,14 @@ namespace CG.WondevWoman
         public IGameAction GetAction(State state, Countdown countdown)
         {
             var actions = state.GetPossibleActions();
+            var scores = new Dictionary<IGameAction, ExplainedScore>();
             foreach (var action in actions)
             {
                 if (countdown.IsFinished) break;
-                action.Score = Evaluate(state, action);
+                scores[action] = Evaluate(state, action);
                 
             }
-            return actions.MaxBy(a => a.Score ?? double.NegativeInfinity);
+            return actions.MaxBy(a => scores.TryGetValue(a, out var score) ? score : double.NegativeInfinity);
         }
 
         private ExplainedScore Evaluate(State state, IGameAction action)

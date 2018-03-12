@@ -1,9 +1,10 @@
+using System;
+
 namespace CG.WondevWoman
 {
-    public interface IGameAction
+    public interface IGameAction : IEquatable<IGameAction>
     {
         string Message { get; set; }
-        ExplainedScore Score { get; set; }
         Cancelable ApplyTo(State state);
     }
 }

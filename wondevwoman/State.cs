@@ -8,11 +8,11 @@ namespace CG.WondevWoman
     public class State
     {
         private readonly bool[] dead;
-        private readonly int[][] heights;
+        public readonly int[,] heights;
         private readonly int[] scores;
         private readonly Vec[][] units;
 
-        public State(int[][] heights, Vec[][] units, bool[] dead, int[] scores)
+        public State(int[,] heights, Vec[][] units, bool[] dead, int[] scores)
         {
             this.heights = heights;
             this.units = units;
@@ -23,7 +23,7 @@ namespace CG.WondevWoman
         public int CurrentPlayer { get; private set; }
         public IReadOnlyList<Vec> MyUnits => units[CurrentPlayer];
         public IReadOnlyList<Vec> HisUnits => units[1 - CurrentPlayer];
-        public int Size => heights.Length;
+        public int Size => heights.GetLength(0);
         public IEnumerable<Vec> AllUnits => units.SelectMany(us => us);
 
         public IReadOnlyList<Vec> GetUnits(int player)
@@ -43,12 +43,12 @@ namespace CG.WondevWoman
 
         public int HeightAt(Vec pos)
         {
-            return heights[pos.Y][pos.X];
+            return heights[pos.Y, pos.X];
         }
 
         public int HeightAt(int x, int y)
         {
-            return heights[y][x];
+            return heights[y, x];
         }
 
         [Conditional("CORRECTNESS_CHECKS")]
@@ -64,8 +64,10 @@ namespace CG.WondevWoman
 
         public State MakeCopy()
         {
+            var newHeights = new int[Size, Size];
+            Array.Copy(heights, newHeights, heights.Length);
             return new State(
-                heights.Select(r => r.ToArray()).ToArray(),
+                newHeights,
                 units.Select(us => us.ToArray()).ToArray(),
                 dead.ToArray(),
                 scores.ToArray()
@@ -80,9 +82,7 @@ namespace CG.WondevWoman
             if (dead[0] && dead[1]) return new List<IGameAction>();
             if (dead[CurrentPlayer])
                 return new List<IGameAction> { new AcceptDefeatAction() };
-            var actions =
-                GetPossibleMoveActions().Concat(GetPossiblePushActions())
-                    .ToList();
+            var actions = GetPossibleMoveActions().Concat(GetPossiblePushActions()).ToList();
             if (actions.Count == 0)
                 actions.Add(new AcceptDefeatAction());
             return actions;
@@ -159,7 +159,7 @@ namespace CG.WondevWoman
 
         public string Serialize()
         {
-            var map = heights.StrJoin("|", row => row.StrJoin(""));
+            var map = Size.Times(y => Size.Times(x => heights[y, x]).StrJoin("")).StrJoin("|");
             var my = MyUnits.StrJoin("|");
             var his = HisUnits.StrJoin("|");
             return string.Join("|", map, my, his);
@@ -167,7 +167,7 @@ namespace CG.WondevWoman
 
         public override string ToString()
         {
-            var map = heights.StrJoin("\n", row => row.StrJoin(""));
+            var map = Size.Times(y => Size.Times(x => heights[y, x]).StrJoin("")).StrJoin("\n");
             var my = MyUnits.StrJoin("; ");
             var his = HisUnits.StrJoin("; ");
             return $"{map}\n{my}\n{his}\n{CurrentPlayer}";
@@ -185,7 +185,7 @@ namespace CG.WondevWoman
 
         public void SetHeight(Vec pos, int newHeight)
         {
-            heights[pos.Y][pos.X] = newHeight;
+            heights[pos.Y, pos.X] = newHeight;
         }
 
         public void SetDead(int player, bool isDead)

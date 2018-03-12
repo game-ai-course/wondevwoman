@@ -145,14 +145,14 @@ namespace CG.WondevWoman
         private Vec oldPos;
         private int oldScore;
 
-        public MoveAndBuildAction(int index, Direction moveDirection, Direction buildDirection)
+        public MoveAndBuildAction(int unitIndex, Direction moveDirection, Direction buildDirection)
         {
-            Index = index;
+            UnitIndex = unitIndex;
             MoveDirection = moveDirection;
             BuildDirection = buildDirection;
         }
 
-        public int Index { get; }
+        public int UnitIndex { get; }
 
         public Vec BuildPos { get; private set; }
 
@@ -160,13 +160,13 @@ namespace CG.WondevWoman
         {
             try
             {
-                oldPos = state.MyUnits[Index];
+                oldPos = state.MyUnits[UnitIndex];
                 var newPos = oldPos + MoveDirection;
                 buildPosition = newPos + BuildDirection;
                 BuildPos = buildPosition;
                 oldHeight = state.HeightAt(buildPosition);
                 oldScore = state.GetScore(state.CurrentPlayer);
-                state.MoveUnit(state.CurrentPlayer, Index, newPos);
+                state.MoveUnit(state.CurrentPlayer, UnitIndex, newPos);
                 if (state.HeightAt(newPos) == 3)
                     state.SetScore(state.CurrentPlayer, oldScore + 1);
                 if (!state.HisUnits.Any(u => u.Equals(buildPosition)))
@@ -189,25 +189,24 @@ namespace CG.WondevWoman
             state.ChangeCurrentPlayer();
             state.SetHeight(buildPosition, oldHeight);
             state.SetScore(state.CurrentPlayer, oldScore);
-            state.MoveUnit(state.CurrentPlayer, Index, oldPos);
+            state.MoveUnit(state.CurrentPlayer, UnitIndex, oldPos);
         }
 
         public override string ToString()
         {
-            return $"MOVE&BUILD {Index} {MoveDirection} {BuildDirection}";
+            return $"MOVE&BUILD {UnitIndex} {MoveDirection} {BuildDirection}";
         }
     }
 }
 
 /*
- * C����� CORRECTNESS_CHECKS �������� �������������� ��������, ��� �� �� ���������� ��� ������ �� ����� ����.
- * ������� �� ����� ������� ��������� � ��� �������� ��������� � ���������.
- * ����� ����� ����� ���������, ����� �� ���� ��������� ��������.
+ * Cимвол CORRECTNESS_CHECKS включает дополнительные проверки, что мы всё симулируем без ошибок во время игры.
+ * полезно на этапе отладки симуляции и при внесении изменений в симуляцию.
+ * После этого стоит отключить, чтобы не было накладных расходов.
  */
 
 // #define CORRECTNESS_CHECKS
  
-    
 
 namespace CG.WondevWoman
 {
@@ -217,45 +216,14 @@ namespace CG.WondevWoman
         {
             var reader = new StateReader(Console.ReadLine);
             var initData = reader.ReadInitialization();
-            var evaluator = new StateEvaluator();
-            var fogRevealer = new SimpleFogRevealer();
-            var ai = new GreedyAi(evaluator);
             while (true)
             {
                 var state = reader.ReadState(initData);
-                var countdown = new Countdown(45);
-                fogRevealer.ConsiderStateBeforeMove(state, 20);
-                // ReSharper disable once RedundantAssignment
                 var actions = reader.ReadActions();
-                EnsureActionsAreSame(state.GetPossibleActions(), actions);
-                var action = ai.GetAction(state, countdown);
-                WriteOutput(action);
-                Console.Error.WriteLine(countdown);
-                fogRevealer.RegisterAction(action);
-                action.ApplyTo(state);
+                var action = actions.LastOrDefault();
+                Console.WriteLine(action ?? "ACCEPT-DEFEAT");
             }
             // ReSharper disable once FunctionNeverReturns
-        }
-
-        private static void WriteOutput(IGameAction action)
-        {
-            var s = action.ToString();
-            if (action.Message != null)
-                s += " " + action.Message;
-            Console.WriteLine(s);
-        }
-
-        [Conditional("CORRECTNESS_CHECKS")]
-        private static void EnsureActionsAreSame(IEnumerable<IGameAction> actual, List<string> expected)
-        {
-            var expectedSet = new HashSet<string>(expected);
-            if (expectedSet.Count == 0)
-                expectedSet.Add("ACCEPT-DEFEAT");
-            foreach (var action in actual)
-                if (!expectedSet.Remove(action.ToString()))
-                    throw new Exception($"Extra action {action}");
-            if (expectedSet.Any())
-                throw new Exception($"missing action {expectedSet.First()}");
         }
     }
 }
@@ -270,14 +238,14 @@ namespace CG.WondevWoman
         private Vec enemyOldPos;
         private int oldHeight;
 
-        public PushAndBuildAction(int index, Direction targetDirection, Direction pushDirection)
+        public PushAndBuildAction(int unitIndex, Direction targetDirection, Direction pushDirection)
         {
-            Index = index;
+            UnitIndex = unitIndex;
             TargetDirection = targetDirection;
             PushDirection = pushDirection;
         }
 
-        public int Index { get; }
+        public int UnitIndex { get; }
 
         public Vec BuildPos { get; private set; }
 
@@ -285,7 +253,7 @@ namespace CG.WondevWoman
         {
             try
             {
-                var me = state.MyUnits[Index];
+                var me = state.MyUnits[UnitIndex];
                 enemyOldPos = me + TargetDirection;
                 var enemyDest = enemyOldPos + PushDirection;
                 BuildPos = enemyOldPos;
@@ -320,7 +288,7 @@ namespace CG.WondevWoman
 
         public override string ToString()
         {
-            return $"PUSH&BUILD {Index} {TargetDirection} {PushDirection}";
+            return $"PUSH&BUILD {UnitIndex} {TargetDirection} {PushDirection}";
         }
     }
 }
@@ -350,7 +318,7 @@ namespace CG.WondevWoman
 
         public void ConsiderStateBeforeMove(State state, Countdown countdown)
         {
-            // countdown ����� �� �������, ����� ��������� ������ ��� ���-�� ������.
+            // countdown нужен на будущее, когда захочется делать тут что-то тяжёлое.
             if (prevState != null)
             {
                 prevAction.ApplyTo(prevState);
@@ -361,8 +329,8 @@ namespace CG.WondevWoman
         
         private static void RevealFromFog(State state, State prevState)
         {
-            // �������, ��� ��������� ����� �������� ���, ��� �� ������ ��������� ���,
-            // ���� ��� ������ ����� ������.
+            // Считает, что невидимые юниты остаются там, где их видели последний раз,
+            // если там вообще можно стоять.
             for (int i = 0; i < state.HisUnits.Count; i++)
                 if (state.HisUnits[i].X < 0)
                 {
@@ -399,9 +367,6 @@ namespace CG.WondevWoman
         }
 
         public int CurrentPlayer { get; private set; }
-        public int StepsCompleted { get; private set; }
-
-        public bool Finished => StepsCompleted > 400;
         public IReadOnlyList<Vec> MyUnits => units[CurrentPlayer];
         public IReadOnlyList<Vec> HisUnits => units[1 - CurrentPlayer];
         public int Size => heights.Length;
@@ -452,7 +417,6 @@ namespace CG.WondevWoman
                 scores.ToArray()
             )
             {
-                StepsCompleted = StepsCompleted,
                 CurrentPlayer = CurrentPlayer
             };
         }
@@ -463,7 +427,7 @@ namespace CG.WondevWoman
             if (dead[CurrentPlayer])
                 return new List<IGameAction> { new AcceptDefeatAction() };
             var actions =
-                GetPossiblePushActions().Concat(GetPossibleMoveActions())
+                GetPossibleMoveActions().Concat(GetPossiblePushActions())
                     .ToList();
             if (actions.Count == 0)
                 actions.Add(new AcceptDefeatAction());
@@ -479,7 +443,7 @@ namespace CG.WondevWoman
                 foreach (var targetDir in Directions.All8)
                 {
                     var target = unit + targetDir;
-                    if (HisUnits.Any(u => u.Equals(target)))
+                    if (HisUnits.Any(u => u.X >= 0 && u.Equals(target)))
                         foreach (var pushDir in targetDir.PushDirections())
                             if (CanMove(target, target + pushDir))
                             {
@@ -506,7 +470,7 @@ namespace CG.WondevWoman
                             var build = dest + buildDir;
                             if (build.InArea(Size)
                                 && HeightAt(build) < 4
-                                && !AllUnits.Any(u => u.Equals(build)))
+                                && !AllUnits.Any(u => u != unit && u.Equals(build)))
                             {
                                 var action = new MoveAndBuildAction(index, moveDir, buildDir);
                                 EnsureMoveValid(action);
@@ -558,7 +522,6 @@ namespace CG.WondevWoman
         public void ChangeCurrentPlayer()
         {
             CurrentPlayer = 1 - CurrentPlayer;
-            StepsCompleted++;
         }
 
         public void MoveUnit(int player, int index, Vec newPos)
@@ -590,8 +553,9 @@ namespace CG.WondevWoman
     {
         public ExplainedScore Evaluate(State state, int playerIndex)
         {
-            return 0.1 * state.GetPossibleActions().Count + state.MyUnits.Sum(state.HeightAt);
+            return state.GetUnits(playerIndex).Sum(u => u.Y);
         }
+
     }
 }
 
@@ -881,9 +845,9 @@ namespace CG
 
         public double GetCollisionTime(Disk other)
         {
-            // TODO: ������ ���������������� ����������. 
-            // ���������� �� ������� � double-��, � �������� � ����� ����.
-            // ������ �� ���� �������� ������������ ���������� ��������� � �����������.
+            // TODO: ошибки преждевременного округления. 
+            // Правильнее всё считать в double-ах, а окрглять в конце хода.
+            // Сейчас на пару пикселей периодически расходятся симуляции с реальностью.
             var dr = other.Pos - Pos;
             var dv = other.V - V;
             long dvdr = dv.ScalarProd(dr);

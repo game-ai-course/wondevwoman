@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CG
 {
@@ -37,9 +38,29 @@ namespace CG
             return new ExplainedScore(score);
         }
 
+        public static bool operator <(ExplainedScore left, ExplainedScore right)
+        {
+            return left.Value < right.Value;
+        }
+
+        public static bool operator >(ExplainedScore left, ExplainedScore right)
+        {
+            return left.Value > right.Value;
+        }
+
+        public static bool operator <=(ExplainedScore left, ExplainedScore right)
+        {
+            return left.Value <= right.Value;
+        }
+
+        public static bool operator >=(ExplainedScore left, ExplainedScore right)
+        {
+            return left.Value >= right.Value;
+        }
+
         public override string ToString()
         {
-            return $"{Value:0.00} because {Explanation}";
+            return $"{Value:0.00} ({Explanation})";
         }
     }
 }

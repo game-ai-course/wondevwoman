@@ -5,11 +5,11 @@ namespace CG.WondevWoman
 {
     public class PushAndBuildAction : IGameAction
     {
-        public readonly Direction PushDirection;
+        public readonly int UnitIndex;
         public readonly Direction TargetDirection;
-        private int enemyIndex;
-        private Vec enemyOldPos;
-        private int oldHeight;
+        public readonly Direction PushDirection;
+
+        public string Message { get; set; }
 
         public PushAndBuildAction(int unitIndex, Direction targetDirection, Direction pushDirection)
         {
@@ -18,20 +18,15 @@ namespace CG.WondevWoman
             PushDirection = pushDirection;
         }
 
-        public int UnitIndex { get; }
-
-        public Vec BuildPos { get; private set; }
-
         public Cancelable ApplyTo(State state)
         {
             try
             {
                 var me = state.MyUnits[UnitIndex];
-                enemyOldPos = me + TargetDirection;
+                var enemyOldPos = me + TargetDirection;
                 var enemyDest = enemyOldPos + PushDirection;
-                BuildPos = enemyOldPos;
-                enemyIndex = state.HisUnits.IndexOf(enemyOldPos);
-                oldHeight = state.HeightAt(enemyOldPos);
+                int enemyIndex = state.HisUnits.IndexOf(enemyOldPos);
+                int oldHeight = state.HeightAt(enemyOldPos);
 
                 if (enemyIndex >= 0 && !state.MyUnits.Concat(state.HisUnits).Any(p => p.Equals(enemyDest)))
                 {
@@ -40,7 +35,7 @@ namespace CG.WondevWoman
                 }
                 state.ChangeCurrentPlayer();
                 state.EnsureValid();
-                return new Cancelable(() => Undo(state));
+                return new Cancelable(() => Undo(state, enemyIndex, enemyOldPos, oldHeight));
             }
             catch (Exception e)
             {
@@ -48,10 +43,7 @@ namespace CG.WondevWoman
             }
         }
 
-        public string Message { get; set; }
-        public ExplainedScore Score { get; set; }
-
-        private void Undo(State state)
+        private void Undo(State state, int enemyIndex, Vec enemyOldPos, int oldHeight)
         {
             state.ChangeCurrentPlayer();
             if (enemyIndex >= 0)
@@ -59,9 +51,48 @@ namespace CG.WondevWoman
             state.SetHeight(enemyOldPos, oldHeight);
         }
 
+        public bool Equals(IGameAction other)
+        {
+            return Equals((object) other);
+        }
+
         public override string ToString()
         {
             return $"PUSH&BUILD {UnitIndex} {TargetDirection} {PushDirection}";
+        }
+
+        protected bool Equals(PushAndBuildAction other)
+        {
+            return PushDirection == other.PushDirection && TargetDirection == other.TargetDirection && UnitIndex == other.UnitIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PushAndBuildAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int) PushDirection;
+                hashCode = (hashCode * 397) ^ (int) TargetDirection;
+                hashCode = (hashCode * 397) ^ UnitIndex;
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(PushAndBuildAction left, PushAndBuildAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(PushAndBuildAction left, PushAndBuildAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }

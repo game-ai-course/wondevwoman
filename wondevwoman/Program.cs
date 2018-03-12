@@ -23,10 +23,12 @@ namespace CG.WondevWoman
             var ai = new GreedyAi(evaluator);
             var reader = new StateReader(Console.ReadLine);
             var initData = reader.ReadInitialization();
+            var isFirst = true;
             while (true)
             {
                 var state = reader.ReadState(initData);
-                var countdown = new Countdown(45);
+                var countdown = new Countdown(isFirst ? 95 : 45);
+                isFirst = false;
                 fogRevealer.ConsiderStateBeforeMove(state, 20);
                 // ReSharper disable once RedundantAssignment
                 var actions = reader.ReadActions();

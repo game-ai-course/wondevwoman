@@ -5,12 +5,11 @@ namespace CG.WondevWoman
 {
     public class MoveAndBuildAction : IGameAction
     {
-        public readonly Direction BuildDirection;
+        public readonly int UnitIndex;
         public readonly Direction MoveDirection;
-        private Vec buildPosition;
-        private int oldHeight;
-        private Vec oldPos;
-        private int oldScore;
+        public readonly Direction BuildDirection;
+
+        public string Message { get; set; }
 
         public MoveAndBuildAction(int unitIndex, Direction moveDirection, Direction buildDirection)
         {
@@ -19,20 +18,15 @@ namespace CG.WondevWoman
             BuildDirection = buildDirection;
         }
 
-        public int UnitIndex { get; }
-
-        public Vec BuildPos { get; private set; }
-
         public Cancelable ApplyTo(State state)
         {
             try
             {
-                oldPos = state.MyUnits[UnitIndex];
+                var oldPos = state.MyUnits[UnitIndex];
                 var newPos = oldPos + MoveDirection;
-                buildPosition = newPos + BuildDirection;
-                BuildPos = buildPosition;
-                oldHeight = state.HeightAt(buildPosition);
-                oldScore = state.GetScore(state.CurrentPlayer);
+                var buildPosition = newPos + BuildDirection;
+                int oldHeight = state.HeightAt(buildPosition);
+                int oldScore = state.GetScore(state.CurrentPlayer);
                 state.MoveUnit(state.CurrentPlayer, UnitIndex, newPos);
                 if (state.HeightAt(newPos) == 3)
                     state.SetScore(state.CurrentPlayer, oldScore + 1);
@@ -40,7 +34,7 @@ namespace CG.WondevWoman
                     state.SetHeight(buildPosition, state.HeightAt(buildPosition) + 1);
                 state.ChangeCurrentPlayer();
                 state.EnsureValid();
-                return new Cancelable(() => Undo(state));
+                return new Cancelable(() => Undo(state, buildPosition, oldHeight, oldScore, oldPos));
             }
             catch (Exception e)
             {
@@ -48,10 +42,7 @@ namespace CG.WondevWoman
             }
         }
 
-        public string Message { get; set; }
-        public ExplainedScore Score { get; set; }
-
-        private void Undo(State state)
+        private void Undo(State state, Vec buildPosition, int oldHeight, int oldScore, Vec oldPos)
         {
             state.ChangeCurrentPlayer();
             state.SetHeight(buildPosition, oldHeight);
@@ -59,9 +50,47 @@ namespace CG.WondevWoman
             state.MoveUnit(state.CurrentPlayer, UnitIndex, oldPos);
         }
 
+        public bool Equals(IGameAction other)
+        {
+            return Equals((object)other);
+        }
+
         public override string ToString()
         {
             return $"MOVE&BUILD {UnitIndex} {MoveDirection} {BuildDirection}";
+        }
+        protected bool Equals(MoveAndBuildAction other)
+        {
+            return BuildDirection == other.BuildDirection && MoveDirection == other.MoveDirection && UnitIndex == other.UnitIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MoveAndBuildAction) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int) BuildDirection;
+                hashCode = (hashCode * 397) ^ (int) MoveDirection;
+                hashCode = (hashCode * 397) ^ UnitIndex;
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(MoveAndBuildAction left, MoveAndBuildAction right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(MoveAndBuildAction left, MoveAndBuildAction right)
+        {
+            return !Equals(left, right);
         }
     }
 }
