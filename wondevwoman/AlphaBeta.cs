@@ -8,10 +8,11 @@ namespace CG.WondevWoman
     {
 
         public AlphaBeta(
-            Func<TNode, IList<TNode>> getChildren, 
+            Func<TNode, IList<TNode>> getChildren,
             Func<TNode, ExplainedScore> getScore,
             Func<TNode, IDisposable> openNode,
-            Func<bool> timeIsOut = null)
+            Func<bool> timeIsOut = null
+            )
         {
         }
 

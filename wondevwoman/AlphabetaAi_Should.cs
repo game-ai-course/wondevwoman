@@ -53,29 +53,22 @@ namespace CG.WondevWoman
         [Test]
         public void MeasurePerformance()
         {
-            var totalNodes = new StatValue();
-            var avDepth = new StatValue();
-            for (int repeat = 0; repeat < 5; repeat++)
+            var state = new StateReader("...0...|..000..|.00000.|0000000|.00010.|..000..|...1...|3 5|5 4|3 4|1 1|")
+                .ReadState(new InitializationData(7, 2));
+            var alphabetaAi = new AlphaBetaAi(evaluator) { LoggingEnabled = false };
+            var totalNodesProcessed = 0;
+            var totalDepths = 0;
+            var count = 50;
+            for (var turn = 0; turn < count; turn++)
             {
-                var state = new StateReader("...0...|..000..|.00000.|0000000|.00010.|..000..|...1...|3 5|5 4|3 4|1 1|")
-                    .ReadState(new InitializationData(7, 2));
-                var alphabetaAi = new AlphaBetaAi(evaluator) { LoggingEnabled = false };
-                var totalNodesProcessed = 0;
-                var totalDepths = 0;
-                var count = 40;
-                for (var turn = 0; turn < count; turn++)
-                {
-                    var action = alphabetaAi.GetAction(state, turn == 0 ? 100 : 50);
-                    action.ApplyTo(state);
-                    state.ChangeCurrentPlayer();
-                    totalNodesProcessed += alphabetaAi.LastSearchTreeSize;
-                    totalDepths += alphabetaAi.LastDepthFullySearched;
-                }
-                totalNodes.Add(totalNodesProcessed);
-                avDepth.Add(totalDepths / (double)count);
+                var action = alphabetaAi.GetAction(state, turn == 0 ? 100 : 50);
+                action.ApplyTo(state);
+                state.ChangeCurrentPlayer();
+                totalNodesProcessed += alphabetaAi.LastSearchTreeSize;
+                totalDepths += alphabetaAi.LastDepthFullySearched;
             }
-            Console.WriteLine($"Total Nodes Searched: {totalNodes}");
-            Console.WriteLine($"Average search depth: {avDepth}");
+            Console.WriteLine($"Total Nodes Searched: {totalNodesProcessed}");
+            Console.WriteLine($"Average search depth: {totalDepths / (double)count}");
         }
 
         [Test]
@@ -87,6 +80,16 @@ namespace CG.WondevWoman
             var ai = new AlphaBetaAi(evaluator, 3);
             ai.GetAction(state, 3000); // measure
             Console.WriteLine($"SearchTreeSize: {ai.LastSearchTreeSize}");
+        }
+
+        [Test]
+        public void Debug()
+        {
+            var stateInput = "...1...|..344..|.44433.|2444443|.41421.|..113..|...0...|5 2|0 3|2 1|3 5|";
+            var state = StateReader.Read(stateInput);
+            var action = new AlphaBetaAi(evaluator, 1).GetAction(state, 100);
+            Assert.That(action.ToString(), Is.EqualTo("MOVE&BUILD 0 SE SW"));
+            
         }
     }
 }
